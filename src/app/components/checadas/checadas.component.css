@@ -1,0 +1,177 @@
+/* Estilo general para el contenedor */
+.checadas-container {
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 1800px;
+  margin: auto;
+}
+
+/* Estilo para el encabezado */
+.checadas-container h2 {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #3f51b5;
+  margin-bottom: 24px;
+}
+
+.checadas-container h2 mat-icon {
+  margin-right: 8px;
+}
+
+/* Contenedor de filtros y botones */
+.filter-container {
+  display: flex;
+  gap: 11px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+
+}
+
+.filter-container mat-form-field {
+  padding: 8px;
+  min-width: 280px;
+}
+
+/* Botón de exportar */
+button[mat-raised-button] {
+  display: flex;
+  align-items: end;
+  font-size: 12px;
+  font-weight: 300;
+  padding: 8px 16px;
+  text-transform: uppercase;
+  border-radius: 8px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+button[mat-raised-button] mat-icon {
+  margin-right: 8px;
+}
+
+/* Contenedor con scroll */
+.table-wrapper {
+  max-height: 600px; /* Altura máxima del contenedor */
+  overflow-y: auto; /* Habilitar scroll vertical */
+  overflow-x: auto; /* Habilitar scroll horizontal si es necesario */
+  border: 1px solid #e0e0e0; /* Borde alrededor del contenedor */
+  background-color: #ffffff; /* Fondo blanco */
+  border-radius: 8px; /* Bordes redondeados */
+}
+
+/* Encabezados sticky */
+.mat-header-cell {
+  position: sticky; /* Hace que los encabezados sean fijos */
+  top: 0; /* Fijar en la parte superior del contenedor */
+  z-index: 10; /* Asegura que los encabezados queden sobre las filas */
+  background-color: #f5f5f5; /* Fondo del encabezado */
+  color: #333; /* Color del texto */
+  font-weight: bold; /* Texto en negritas */
+  text-align: left; /* Alineación del texto */
+  padding: 12px; /* Espaciado interno */
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Sombra para resaltar encabezados */
+  border-bottom: 1px solid #e0e0e0; /* Línea divisoria */
+}
+
+/* Celdas de la tabla */
+.mat-cell {
+  padding: 12px; /* Espaciado interno */
+  color: #555; /* Color del texto */
+  border-bottom: 1px solid #e0e0e0; /* Línea divisoria entre filas */
+}
+
+/* Alternar colores de las filas */
+.mat-row:nth-child(even) .mat-cell {
+  background-color: #fafafa; /* Color para filas pares */
+}
+
+.mat-row:nth-child(odd) .mat-cell {
+  background-color: #ffffff; /* Color para filas impares */
+}
+
+/* Hover en filas */
+.mat-row:hover {
+  background-color: #f9f9f9; /* Fondo claro al pasar el cursor */
+  cursor: pointer; /* Cambiar cursor */
+}
+
+/* Eliminar margen adicional del encabezado y filtros */
+.header-container,
+.filter-group {
+  margin-bottom: 16px;
+}
+
+/* Estilo para el mensaje de error */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #d32f2f; /* Color rojo para mensajes de error */
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+
+
+/* Estilo para el paginador */
+.mat-paginator {
+  margin-top: 16px;
+  background: transparent;
+}
+
+.mat-paginator .mat-paginator-range-label {
+  font-size: 14px;
+}
+
+.mat-paginator .mat-button {
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+/* Mensaje de error */
+.error-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f44336;
+  font-weight: bold;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.error-message mat-icon {
+  margin-right: 8px;
+}
+/* Encabezado */
+.header-container {
+  display: flex;
+  justify-content: space-between; /* Posiciona los elementos en extremos opuestos */
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #3f51b5;
+  display: flex;
+  align-items: center;
+}
+
+.header-title mat-icon {
+  margin-right: 8px;
+}
+
+/* Contenedor del botón de exportar */
+.export-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+} 
+
+.export-button mat-icon {
+  margin-right: 8px;
+}

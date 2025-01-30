@@ -1,0 +1,19 @@
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <img src="/assets/logov4.png" alt="Logo" class="img-fluid rounded-circle" />
+    <h1>
+      Panel Administrativo 
+      <span *ngIf="username">- {{ username }}</span> <!-- Mostrar el nombre del usuario -->
+    </h1>
+    <nav>
+      <button class="btn btn-link nav-link logout-button text-white" (click)="logout()">
+        <i class="bi bi-box-arrow-right"></i> Salir
+      </button>
+      
+    </nav>
+  </header>
+
+  <main class="dashboard-main">
+    <router-outlet></router-outlet> <!-- Aquí renderizarán las vistas hijas -->
+  </main>
+</div>

@@ -1,0 +1,136 @@
+/* Contenedor principal para centrar el login */
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #3a8dff, #6ac1ff); /* Degradado moderno */
+}
+
+/* Contenedor de la card */
+.login-card {
+  width: 700px; /* Tamaño más grande */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+/* Imagen a la izquierda */
+.login-card-image {
+  width: 50%;
+  background-color: #f4f7fc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+}
+
+.login-card-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+/* Contenido del formulario */
+.login-card-content {
+  width: 50%;
+  padding: 40px;
+  box-sizing: border-box;
+  background-color: #1E3A8A;
+}
+
+h2 {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 30px;
+  color: white;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  display: block;
+  margin-bottom: 8px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 18px;
+  color: #333;
+  background-color: #fff;
+}
+
+input:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+/* Botón */
+button {
+  width: 100%;
+  padding: 12px;
+  background-color: #3B82F6;
+  border: none;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #2563EB;
+}
+
+/* Mensaje de error */
+.error-message {
+  color: #f44336;
+  font-size: 16px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .login-card {
+    flex-direction: column; /* Apila los elementos verticalmente */
+    width: 90%; /* Reduce el ancho */
+  }
+
+  .login-card-image {
+    width: 100%; /* Imagen toma todo el ancho */
+    padding: 20px; /* Ajusta el padding */
+  }
+
+  .login-card-content {
+    width: 100%; /* Formulario toma todo el ancho */
+    padding: 20px; /* Reduce el padding */
+  }
+}
+
+@media (max-width: 480px) {
+  h2 {
+    font-size: 24px; /* Reduce el tamaño del título */
+  }
+
+  input {
+    font-size: 16px; /* Reduce el tamaño de los inputs */
+  }
+
+  button {
+    font-size: 16px; /* Reduce el tamaño del botón */
+  }
+}
