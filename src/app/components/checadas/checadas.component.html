@@ -6,7 +6,8 @@
   </h2>
   <!-- Botón de exportar -->
   <div class="export-container">
-    <button mat-raised-button color="primary" class="export-button" (click)="exportarExcel()" aria-label="Exportar a Excel">
+    <button mat-raised-button color="primary" class="export-button" (click)="exportarExcel()"
+      aria-label="Exportar a Excel">
       <mat-icon class="button-icon">file_download</mat-icon>
       Exportar a Excel
     </button>
@@ -113,8 +114,8 @@
 </div>
 
 
-  <!-- Mensaje de error -->
-  <div *ngIf="errorMessage" class="error-message">
-    <mat-icon color="warn">error</mat-icon>
-    {{ errorMessage }}
-  </div>
+<!-- Mensaje de error -->
+<div *ngIf="errorMessage" class="error-message">
+  <mat-icon color="warn">error</mat-icon>
+  {{ errorMessage }}
+</div>

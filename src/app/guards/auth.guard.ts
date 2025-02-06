@@ -14,8 +14,6 @@ export class authGuard implements CanActivate{
   ): Observable<boolean> | Promise<boolean> | boolean {
     const token = localStorage.getItem('authToken');
     const departamentoId = localStorage.getItem('departamentoId');
-    
-    
     if (token) {
       return true;  // El usuario está autenticado
     } else {

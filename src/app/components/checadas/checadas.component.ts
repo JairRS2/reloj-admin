@@ -37,18 +37,18 @@ export class ChecadasComponent implements OnInit {
   startDate: Date | null = null;
   endDate: Date | null = null;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  departamentoId: string = '';
+  nickname: string = '';
   db: string = ''; // Se añadirá el valor de la base de datos seleccionada
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
-    const storedDepartamentoId = localStorage.getItem('departamentoId');
+    const storedDepartamentoId = localStorage.getItem('nickname');
     const storedDb = localStorage.getItem('db'); // Obtén el valor de db desde localStorage
     if (storedDepartamentoId && storedDb) {
-      this.departamentoId = storedDepartamentoId;
+      this.nickname = storedDepartamentoId;
       this.db = storedDb; // Asigna el valor de db
-      this.loadChecadas(this.departamentoId);
+      this.loadChecadas(this.nickname);
     } else {
       this.errorMessage = 'No se pudo recuperar los datos necesarios. Inicie sesión nuevamente.';
     }
@@ -57,14 +57,14 @@ export class ChecadasComponent implements OnInit {
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
   }
-
-  loadChecadas(departamentoId: string): void {
+  //Metodo para cargar las checadad
+  loadChecadas(nickname: string): void {
     if (!this.db) {
       this.errorMessage = 'No se seleccionó la base de datos.';
       return;
     }
 
-    this.apiService.getChecadasPorDepartamento(departamentoId, this.db).subscribe(
+    this.apiService.getChecadasPorDepartamento(nickname, this.db).subscribe(
       (response) => {
         const mappedData = response.map((checada: any) => {
           const fechaISO = new Date(checada.FechaChecada);
@@ -80,25 +80,40 @@ export class ChecadasComponent implements OnInit {
         });
 
         this.originalData = mappedData;
-        this.dataSource.data = [...this.originalData];
+
+        // Aplica la agrupación por empleado y día al cargar los datos
+        const groupedData = this.groupChecadasByDay(this.originalData);
+        this.dataSource.data = groupedData;
       },
       (error) => {
         this.errorMessage = 'Error al cargar las asistencias.';
       }
     );
   }
-
+  //Metodo para aplicar los filtros de busqueda y fechas
   applyFilters(): void {
     let filteredData = [...this.originalData]; // Siempre empieza desde los datos originales
 
+    // Filtra por nombre o clave mientras el usuario escribe
     if (this.searchTerm) {
       const filterValue = this.searchTerm.toLowerCase();
       filteredData = filteredData.filter((checada) =>
         checada.Nombre.toLowerCase().includes(filterValue) ||
         checada.ClaveEmpleado.toLowerCase().includes(filterValue)
       );
+
+      // Ordena los resultados: nombres que comienzan con el texto primero
+      filteredData.sort((a, b) => {
+        const aStartsWith = a.Nombre.toLowerCase().startsWith(filterValue);
+        const bStartsWith = b.Nombre.toLowerCase().startsWith(filterValue);
+
+        if (aStartsWith && !bStartsWith) return -1; // "a" primero
+        if (!aStartsWith && bStartsWith) return 1;  // "b" primero
+        return 0; // Mantener el orden original
+      });
     }
 
+    // Filtra por fechas
     if (this.startDate || this.endDate) {
       filteredData = filteredData.filter((checada) => {
         const fecha = new Date(checada.FechaChecada);
@@ -109,31 +124,75 @@ export class ChecadasComponent implements OnInit {
       });
     }
 
-    this.dataSource.data = filteredData;
+    // Aplica la agrupación por empleado y día en todos los casos
+    const groupedData = this.groupChecadasByDay(filteredData);
+    this.dataSource.data = groupedData;
 
+    // Reinicia la paginación
     if (this.paginator) {
       this.paginator.firstPage();
     }
   }
+  //Metodo para agrupar las checadas por dia y solo mostrar una entrada y una salida
+  groupChecadasByDay(checadas: any[]): any[] {
+    const groupedChecadas: { [key: string]: any } = {};
 
+    checadas.forEach((checada) => {
+      const fecha = new Date(checada.FechaChecada).toLocaleDateString(); // Agrupa por fecha sin hora
+      const claveEmpleado = checada.ClaveEmpleado; // Agrupa por empleado
+
+      // Creamos una clave única para cada empleado y fecha
+      const claveUnica = `${claveEmpleado}-${fecha}`;
+
+      if (!groupedChecadas[claveUnica]) {
+        // Si no existe un registro para este empleado y fecha, lo creamos
+        groupedChecadas[claveUnica] = {
+          ...checada, // Copiamos todos los datos de la checada
+          HoraEntrada: checada.HoraEntrada, // Hora de entrada inicial
+          HoraSalida: checada.HoraSalida, // Hora de salida inicial
+        };
+      } else {
+        // Si ya existe un registro para este empleado y fecha, actualizamos las horas
+        const registroExistente = groupedChecadas[claveUnica];
+
+        // Si la hora de entrada actual es más temprana, la actualizamos
+        if (checada.HoraEntrada < registroExistente.HoraEntrada) {
+          registroExistente.HoraEntrada = checada.HoraEntrada;
+        }
+
+        // Si la hora de salida actual es más tardía, la actualizamos
+        if (checada.HoraSalida > registroExistente.HoraSalida) {
+          registroExistente.HoraSalida = checada.HoraSalida;
+        }
+      }
+    });
+
+    // Convertimos el objeto agrupado de nuevo a un array
+    return Object.values(groupedChecadas);
+  }
+  //Metodo para limpiar los filtros
   clearFilters(): void {
     this.searchTerm = '';
     this.startDate = null;
     this.endDate = null;
-    this.dataSource.data = [...this.originalData];
 
+    // Restablece los datos originales y aplica la agrupación por día
+    const groupedData = this.groupChecadasByDay(this.originalData);
+    this.dataSource.data = groupedData;
+
+    // Reinicia la paginación
     if (this.paginator) {
       this.paginator.firstPage();
     }
   }
-
+  //Metodo para calcular las horas laboradas
   calcularHorasLaboradas(horaEntrada: Date, horaSalida: Date): string {
     const diferencia = horaSalida.getTime() - horaEntrada.getTime();
     const horas = Math.floor(diferencia / (1000 * 60 * 60));
     const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
     return `${horas}h ${minutos}m`;
   }
-
+  //Metodo para exportar a excel las checadas
   exportarExcel(): void {
     let datosExportar: Checada[];
 

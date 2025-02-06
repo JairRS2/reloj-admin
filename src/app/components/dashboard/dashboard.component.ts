@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 export class DashboardComponent implements OnInit {
   username: string | null = null; // Store the user's name
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
     this.username = localStorage.getItem('username'); // Retrieve the name from localStorage

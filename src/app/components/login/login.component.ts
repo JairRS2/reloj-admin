@@ -24,12 +24,11 @@ export class LoginComponent {
     'M0121': 'JOSE MANUEL',
     'A1706': 'RUIZ WVILLALDO',
     'A0789': 'JOSEFINA LORENA',
-    'A1140': 'PEDRO RAMON',
-    'A1919': 'RIVERA ENRIQUE',
+    'A1919': 'PABLO RIVERA ENRIQUE',
     'M0845': 'GERARDO EZPINOSA',
-    'G0230': 'ELSA MARIA',
     'M0533': 'JOSE DANIEL',
-    'M0970': 'MIRANDA ORTIZ',
+    'E0507': 'NIETO HERNANDEZ FRANCISCO',
+    'M0970': 'MIRANDA ORTIZ GRACIANO'
   };
 
   constructor(private apiService: ApiService, private router: Router) {}
@@ -47,6 +46,7 @@ export class LoginComponent {
       'G0230',
       'M0533',
       'M0970',
+      'E0507'
     ];
 
     // Validar si el usuario pertenece a la base de datos seleccionada
@@ -58,7 +58,7 @@ export class LoginComponent {
 
     return false; // Por defecto, si no está en ninguna lista
   }
-
+ 
   // Método para obtener el nombre del usuario mapeado
   getUserName(username: string): string {
     return this.userMap[username.toUpperCase()] || username; // Si no encuentra, regresa la clave
@@ -90,7 +90,7 @@ export class LoginComponent {
       });
       return; // Detener la ejecución del método
     }
-
+    
     // Llamar al servicio de login y pasar el parámetro 'db'
     this.apiService.login(this.username, this.password, this.db).subscribe(
       (response) => {
@@ -98,7 +98,7 @@ export class LoginComponent {
 
         // Guardar los datos necesarios en localStorage
         localStorage.setItem('authToken', JSON.stringify(response));
-        localStorage.setItem('departamentoId', response.departamento.toString());
+        localStorage.setItem('nickname', response.claveUsuario.toString());
         localStorage.setItem('db', this.db);
         localStorage.setItem('username', userName); // Guardar el nombre en lugar de la clave
 
@@ -108,7 +108,7 @@ export class LoginComponent {
           text: `Hola, ${userName}. ¡Nos alegra verte!`,
           icon: 'success',
           confirmButtonText: 'Continuar',
-          timer: 3000, // Opcional: cerrar automáticamente después de 3 segundos
+          timer: 2000, // Opcional: cerrar automáticamente después de 3 segundos
         });
 
         this.router.navigate(['/dashboard/checadas']);

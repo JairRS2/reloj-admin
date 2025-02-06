@@ -4,12 +4,14 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #3a8dff, #6ac1ff); /* Degradado moderno */
+  background: linear-gradient(135deg, #3a8dff, #6ac1ff);
+  /* Degradado moderno */
 }
 
 /* Contenedor de la card */
 .login-card {
-  width: 700px; /* Tamaño más grande */
+  width: 700px;
+  /* Tamaño más grande */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -106,31 +108,40 @@ button:hover {
 /* Responsive Design */
 @media (max-width: 768px) {
   .login-card {
-    flex-direction: column; /* Apila los elementos verticalmente */
-    width: 90%; /* Reduce el ancho */
+    flex-direction: column;
+    /* Apila los elementos verticalmente */
+    width: 90%;
+    /* Reduce el ancho */
   }
 
   .login-card-image {
-    width: 100%; /* Imagen toma todo el ancho */
-    padding: 20px; /* Ajusta el padding */
+    width: 100%;
+    /* Imagen toma todo el ancho */
+    padding: 20px;
+    /* Ajusta el padding */
   }
 
   .login-card-content {
-    width: 100%; /* Formulario toma todo el ancho */
-    padding: 20px; /* Reduce el padding */
+    width: 100%;
+    /* Formulario toma todo el ancho */
+    padding: 20px;
+    /* Reduce el padding */
   }
 }
 
 @media (max-width: 480px) {
   h2 {
-    font-size: 24px; /* Reduce el tamaño del título */
+    font-size: 24px;
+    /* Reduce el tamaño del título */
   }
 
   input {
-    font-size: 16px; /* Reduce el tamaño de los inputs */
+    font-size: 16px;
+    /* Reduce el tamaño de los inputs */
   }
 
   button {
-    font-size: 16px; /* Reduce el tamaño del botón */
+    font-size: 16px;
+    /* Reduce el tamaño del botón */
   }
 }
