@@ -25,7 +25,16 @@
         <mat-option value="todos">Exportar todas las checadas</mat-option>
       </mat-select>
     </mat-form-field>
-
+      <!-- Filtro de departamento -->
+      <mat-form-field appearance="outline" class="filter-item">
+        <mat-label>Filtrar por departamento</mat-label>
+        <mat-select [(value)]="departamentoFiltro" (valueChange)="applyFilters()" aria-label="Filtrar por departamento">
+          <mat-option value="">Todos los departamentos</mat-option> <!-- Opción para mostrar todos -->
+          <mat-option *ngFor="let departamento of departamentos" [value]="departamento">
+            {{ departamento }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
     <mat-form-field appearance="outline" class="filter-item filter-text">
       <input matInput [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()"
         placeholder="🔍 Buscar por nombre o clave" aria-label="Buscar" />
@@ -52,7 +61,7 @@
   </div>
 </div>
 
-<!-- Tabla -->
+<!-- Tabla  -->
 <div class="table-wrapper">
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
     <!-- Columna: Clave Empleado -->
@@ -64,19 +73,19 @@
     <!-- Columna: Nombre -->
     <ng-container matColumnDef="Nombre">
       <th mat-header-cell *matHeaderCellDef>Nombre</th>
-      <td mat-cell *matCellDef="let checada">{{ checada.Nombre }}</td>
+      <td mat-cell *matCellDef="let checada">{{ checada.Nombre | uppercase }}</td>
     </ng-container>
 
     <!-- Columna: Departamento -->
     <ng-container matColumnDef="Departamento">
       <th mat-header-cell *matHeaderCellDef>Departamento</th>
-      <td mat-cell *matCellDef="let checada">{{ checada.Departamento }}</td>
+      <td mat-cell *matCellDef="let checada">{{ checada.Departamento | uppercase}}</td>
     </ng-container>
 
     <!-- Columna: Puesto -->
     <ng-container matColumnDef="Puesto">
       <th mat-header-cell *matHeaderCellDef>Puesto</th>
-      <td mat-cell *matCellDef="let checada">{{ checada.Puesto }}</td>
+      <td mat-cell *matCellDef="let checada">{{ checada.Puesto | uppercase}}</td>
     </ng-container>
 
     <!-- Columna: Fecha Checada -->
@@ -84,7 +93,11 @@
       <th mat-header-cell *matHeaderCellDef>Fecha Checada</th>
       <td mat-cell *matCellDef="let checada">{{ checada.FechaChecada | date: 'dd/MM/yyyy' }}</td>
     </ng-container>
-
+    <!-- Columna: Día de la Semana -->
+    <ng-container matColumnDef="DiaSemana">
+      <th mat-header-cell *matHeaderCellDef>Día</th>
+      <td mat-cell *matCellDef="let checada">{{ checada.DiaSemana | uppercase}}</td>
+    </ng-container>
     <!-- Columna: Hora Entrada -->
     <ng-container matColumnDef="HoraEntrada">
       <th mat-header-cell *matHeaderCellDef>Hora Entrada</th>
@@ -100,7 +113,7 @@
     <!-- Columna: Horas Laboradas -->
     <ng-container matColumnDef="HorasLaboradas">
       <th mat-header-cell *matHeaderCellDef>Horas Laboradas</th>
-      <td mat-cell *matCellDef="let checada">{{ checada.HorasLaboradas }}</td>
+      <td mat-cell *matCellDef="let checada">{{ checada.HorasLaboradas.horasLaboradas }}</td>
     </ng-container>
 
     <!-- Encabezados de la tabla -->
@@ -110,9 +123,8 @@
   </table>
 
   <!-- Paginador -->
-  <mat-paginator [pageSize]="20" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+  <mat-paginator [pageSize]="30" [pageSizeOptions]="[10,15,25,30]" showFirstLastButtons></mat-paginator>
 </div>
-
 
 <!-- Mensaje de error -->
 <div *ngIf="errorMessage" class="error-message">

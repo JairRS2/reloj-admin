@@ -39,10 +39,10 @@ registerLocaleData(localeEs);
     BrowserAnimationsModule,
     FormsModule,
     HttpClientModule,
-    MatPaginatorModule, // Agregar el módulo
-    MatTableModule, // Agregar el módulo
-    MatSortModule, // Agregar el módulo
-    MatIconModule, // Agregar el módulo
+    MatPaginatorModule, 
+    MatTableModule, 
+    MatSortModule, 
+    MatIconModule,
     MatFormFieldModule,
     MatSelectModule,
     MatButtonModule,

@@ -21,19 +21,41 @@ interface Checada {
   HoraSalida: string;
   HorasLaboradas?: string;
 }
-
 @Component({
   selector: 'app-checadas',
   templateUrl: './checadas.component.html',
   styleUrls: ['./checadas.component.css'],
 })
+
 export class ChecadasComponent implements OnInit {
-  displayedColumns: string[] = ['ClaveEmpleado', 'Nombre', 'Departamento', 'Puesto', 'FechaChecada', 'HoraEntrada', 'HoraSalida', 'HorasLaboradas'];
+  displayedColumns: string[] = ['ClaveEmpleado', 'Nombre', 'Departamento', 'Puesto', 'FechaChecada', 'DiaSemana', 'HoraEntrada', 'HoraSalida', 'HorasLaboradas'];
   dataSource = new MatTableDataSource<Checada>();
   originalData: Checada[] = [];
   errorMessage: string | null = null;
   opcionExportacion: string = 'pagina';
   searchTerm: string = '';
+  departamentoFiltro: string = '';
+  departamentos: string[] = [
+    'SISTEMAS',
+    'CONTABILIDAD',
+    'NOMINAS',
+    'TESORERIA',
+    'DIRECCION ADMVA',
+    'TRAMITES LEGALES',
+    'CAJAS',
+    'INF Y CONTROL',
+    'DIRECCION OPERATIVA',
+    'PAQUETERIA',
+    'VIDEO CAMARAS',
+    'SERVICIOS',
+    'JURIDICO',
+    'INTENDENCIA',
+    'RELACIONES LABORALES',
+    'VIGILANCIA',
+    'INSPECCIÓN',
+    'FIESTATOUR'
+  ];
+
   startDate: Date | null = null;
   endDate: Date | null = null;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -57,13 +79,11 @@ export class ChecadasComponent implements OnInit {
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
   }
-  //Metodo para cargar las checadad
   loadChecadas(nickname: string): void {
     if (!this.db) {
       this.errorMessage = 'No se seleccionó la base de datos.';
       return;
     }
-
     this.apiService.getChecadasPorDepartamento(nickname, this.db).subscribe(
       (response) => {
         const mappedData = response.map((checada: any) => {
@@ -71,16 +91,14 @@ export class ChecadasComponent implements OnInit {
           const fechaLocal = new Date(fechaISO.getTime() + fechaISO.getTimezoneOffset() * 60000);
           const horaEntrada = new Date(`1970-01-01T${checada.HoraEntrada}:00`);
           const horaSalida = new Date(`1970-01-01T${checada.HoraSalida}:00`);
-
           return {
             ...checada,
             FechaChecada: fechaLocal,
-            HorasLaboradas: this.calcularHorasLaboradas(horaEntrada, horaSalida),
+            DiaSemana: this.getDayOfWeek(fechaLocal), // Aquí agregamos el día de la semana
+            HorasLaboradas: this.calcularHorasLaboradas(horaEntrada, horaSalida, this.db), // Pasar el valor de db
           };
         });
-
         this.originalData = mappedData;
-
         // Aplica la agrupación por empleado y día al cargar los datos
         const groupedData = this.groupChecadasByDay(this.originalData);
         this.dataSource.data = groupedData;
@@ -89,6 +107,12 @@ export class ChecadasComponent implements OnInit {
         this.errorMessage = 'Error al cargar las asistencias.';
       }
     );
+  }
+  getDayOfWeek(date: Date): string {
+    const daysOfWeek = [
+      'domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'
+    ];
+    return daysOfWeek[date.getDay()]; // Obtiene el índice del día de la semana y lo mapea al nombre
   }
   //Metodo para aplicar los filtros de busqueda y fechas
   applyFilters(): void {
@@ -101,7 +125,6 @@ export class ChecadasComponent implements OnInit {
         checada.Nombre.toLowerCase().includes(filterValue) ||
         checada.ClaveEmpleado.toLowerCase().includes(filterValue)
       );
-
       // Ordena los resultados: nombres que comienzan con el texto primero
       filteredData.sort((a, b) => {
         const aStartsWith = a.Nombre.toLowerCase().startsWith(filterValue);
@@ -112,7 +135,6 @@ export class ChecadasComponent implements OnInit {
         return 0; // Mantener el orden original
       });
     }
-
     // Filtra por fechas
     if (this.startDate || this.endDate) {
       filteredData = filteredData.filter((checada) => {
@@ -123,11 +145,15 @@ export class ChecadasComponent implements OnInit {
         );
       });
     }
-
+    // Filtra por departamento
+    if (this.departamentoFiltro) {
+      filteredData = filteredData.filter((checada) =>
+        checada.Departamento.toLowerCase() === this.departamentoFiltro.toLowerCase()
+      );
+    }
     // Aplica la agrupación por empleado y día en todos los casos
     const groupedData = this.groupChecadasByDay(filteredData);
     this.dataSource.data = groupedData;
-
     // Reinicia la paginación
     if (this.paginator) {
       this.paginator.firstPage();
@@ -136,11 +162,9 @@ export class ChecadasComponent implements OnInit {
   //Metodo para agrupar las checadas por dia y solo mostrar una entrada y una salida
   groupChecadasByDay(checadas: any[]): any[] {
     const groupedChecadas: { [key: string]: any } = {};
-
     checadas.forEach((checada) => {
       const fecha = new Date(checada.FechaChecada).toLocaleDateString(); // Agrupa por fecha sin hora
       const claveEmpleado = checada.ClaveEmpleado; // Agrupa por empleado
-
       // Creamos una clave única para cada empleado y fecha
       const claveUnica = `${claveEmpleado}-${fecha}`;
 
@@ -185,14 +209,65 @@ export class ChecadasComponent implements OnInit {
       this.paginator.firstPage();
     }
   }
-  //Metodo para calcular las horas laboradas
-  calcularHorasLaboradas(horaEntrada: Date, horaSalida: Date): string {
+
+  calcularHorasLaboradas(horaEntrada: Date, horaSalida: Date, db: string): {
+    horasLaboradas: string,
+    diferenciaEntrada: string,
+    diferenciaSalida: string,
+    estadoLlegada: string
+  } {
+    // Definir las horas esperadas de entrada y salida
+    const horaEntradaEsperada = new Date('1970-01-01T09:00:00'); // Hora de entrada esperada: 9:00 AM
+    const horaSalidaEsperada = new Date('1970-01-01T18:00:00'); // Hora de salida esperada: 6:00 PM
+
     const diferencia = horaSalida.getTime() - horaEntrada.getTime();
-    const horas = Math.floor(diferencia / (1000 * 60 * 60));
-    const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
-    return `${horas}h ${minutos}m`;
+    let horas = Math.floor(diferencia / (1000 * 60 * 60));
+    let minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+
+    // Restar 1 hora si el valor de db es "grupo"
+    if (db.toLowerCase() === 'grupo') { // Comparación insensible a mayúsculas/minúsculas
+      horas -= 1; // Restar 1 hora
+      if (horas < 0) {
+        horas = 0; // Asegurarse de que no sea negativo
+      }
+    }
+
+    // Calcular la diferencia entre la hora de entrada real y la esperada
+    const diferenciaEntrada = horaEntrada.getTime() - horaEntradaEsperada.getTime();
+    const minutosEntrada = Math.floor(diferenciaEntrada / (1000 * 60));
+
+    // Determinar el estado de llegada
+    let estadoLlegada: string;
+    if (minutosEntrada === 0) {
+      estadoLlegada = 'Llegó a su hora'; // Llegó exactamente a las 9:00
+    } else if (minutosEntrada > 0) {
+      estadoLlegada = `${minutosEntrada} min tarde`; // Llegó después de las 9:00
+    } else {
+      estadoLlegada = `${Math.abs(minutosEntrada)} min temprano`; // Llegó antes de las 9:00
+    }
+
+    // Calcular la diferencia entre la hora de salida real y la esperada
+    const diferenciaSalida = horaSalida.getTime() - horaSalidaEsperada.getTime();
+    const minutosSalida = Math.floor(diferenciaSalida / (1000 * 60));
+
+    // Función para formatear la diferencia en horas o minutos
+    const formatearDiferencia = (minutos: number): string => {
+      if (Math.abs(minutos) >= 60) {
+        const horas = Math.floor(minutos / 60);
+        const minutosRestantes = minutos % 60;
+        return `${horas}hr ${Math.abs(minutosRestantes)}min`; // Mostrar en horas si es mayor o igual a 60 minutos
+      } else {
+        return `${minutos}min`; // Mostrar en minutos si es menor a 60 minutos
+      }
+    };
+
+    return {
+      horasLaboradas: `${horas}h ${minutos}m`, // Asegúrate de que sea una cadena
+      diferenciaEntrada: minutosEntrada >= 0 ? `${formatearDiferencia(minutosEntrada)} tarde` : `${formatearDiferencia(Math.abs(minutosEntrada))} temprano`,
+      diferenciaSalida: minutosSalida >= 0 ? `${formatearDiferencia(minutosSalida)} después` : `${formatearDiferencia(Math.abs(minutosSalida))} antes`,
+      estadoLlegada: estadoLlegada // Nueva propiedad
+    };
   }
-  //Metodo para exportar a excel las checadas
   exportarExcel(): void {
     let datosExportar: Checada[];
 
@@ -204,17 +279,29 @@ export class ChecadasComponent implements OnInit {
       datosExportar = this.dataSource.data;
     }
 
-    const datosTransformados = datosExportar.map((checada) => ({
-      ClaveEmpleado: checada.ClaveEmpleado,
-      Nombre: checada.Nombre,
-      Puesto: checada.Puesto,
-      FechaChecada: checada.FechaChecada.toLocaleDateString('es-MX', {
-        timeZone: 'America/Mexico_City',
-      }),
-      HoraEntrada: checada.HoraEntrada,
-      HoraSalida: checada.HoraSalida,
-      HorasLaboradas: checada.HorasLaboradas,
-    }));
+    const datosTransformados = datosExportar.map((checada) => {
+      const horaEntradaReal = new Date(`1970-01-01T${checada.HoraEntrada}:00`);
+      const horaSalidaReal = new Date(`1970-01-01T${checada.HoraSalida}:00`);
+
+      const { horasLaboradas, diferenciaEntrada, diferenciaSalida, estadoLlegada } = this.calcularHorasLaboradas(horaEntradaReal, horaSalidaReal, this.db);
+
+      const fecha = new Date(checada.FechaChecada);
+      const diaSemana = fecha.toLocaleDateString('es-MX', { weekday: 'long', timeZone: 'America/Mexico_City' });
+
+      return {
+        ClaveEmpleado: checada.ClaveEmpleado,
+        Nombre: checada.Nombre.toUpperCase(),
+        Puesto: checada.Puesto.toUpperCase(),
+        FechaChecada: checada.FechaChecada.toLocaleDateString('es-MX', {
+          timeZone: 'America/Mexico_City',
+        }),
+        DiaSemana: diaSemana.toUpperCase(), // Día de la semana
+        HoraEntrada: checada.HoraEntrada,
+        HoraSalida: checada.HoraSalida,
+        HorasLaboradas: horasLaboradas,
+        //EstadoLlegada: estadoLlegada // Nueva columna para el estado de llegada
+      };
+    });
 
     const hoja = XLSX.utils.json_to_sheet(datosTransformados);
     const libro = XLSX.utils.book_new();
@@ -224,4 +311,5 @@ export class ChecadasComponent implements OnInit {
     const blob = new Blob([buffer], { type: 'application/octet-stream' });
     saveAs(blob, 'Checadas.xlsx');
   }
+
 }

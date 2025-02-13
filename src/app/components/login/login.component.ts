@@ -31,7 +31,7 @@ export class LoginComponent {
     'M0970': 'MIRANDA ORTIZ GRACIANO'
   };
 
-  constructor(private apiService: ApiService, private router: Router) {}
+  constructor(private apiService: ApiService, private router: Router) { }
 
   // Método para validar si el usuario está en la base de datos correcta
   isValidUserForDatabase(username: string, db: string): boolean {
@@ -46,7 +46,8 @@ export class LoginComponent {
       'G0230',
       'M0533',
       'M0970',
-      'E0507'
+      'E0507',
+      'A2177'
     ];
 
     // Validar si el usuario pertenece a la base de datos seleccionada
@@ -58,7 +59,7 @@ export class LoginComponent {
 
     return false; // Por defecto, si no está en ninguna lista
   }
- 
+
   // Método para obtener el nombre del usuario mapeado
   getUserName(username: string): string {
     return this.userMap[username.toUpperCase()] || username; // Si no encuentra, regresa la clave
@@ -90,7 +91,7 @@ export class LoginComponent {
       });
       return; // Detener la ejecución del método
     }
-    
+
     // Llamar al servicio de login y pasar el parámetro 'db'
     this.apiService.login(this.username, this.password, this.db).subscribe(
       (response) => {

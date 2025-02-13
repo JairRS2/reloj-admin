@@ -23,7 +23,7 @@ interface Checada {
   providedIn: 'root',
 })
 export class ApiService {
-  private apiUrl = 'https://0f46-187-148-190-178.ngrok-free.app/api'; // URL de la API
+  private apiUrl = 'https://8b6f-189-161-136-213.ngrok-free.app/api'; // URL de la API
 
   constructor(private http: HttpClient) { }
   // Método de login
@@ -50,7 +50,7 @@ export class ApiService {
       map((response: string) => JSON.parse(response)), // Convertir manualmente a JSON
       catchError((error) => {
         console.error('Error al obtener las checadas:', error);
-        throw error;
+        throw error;//s
       })
     );
   }
